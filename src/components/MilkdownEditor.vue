@@ -21,12 +21,26 @@ import { trailing } from "@milkdown/plugin-trailing";
 import { upload } from "@milkdown/plugin-upload";
 import { cursor } from "@milkdown/plugin-cursor";
 import { clipboard } from "@milkdown/plugin-clipboard";
+import { listener, listenerCtx } from "@milkdown/plugin-listener";
+
+import "prismjs/themes/prism.css";
+
+const props = defineProps<{
+  modelValue: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
 
 const { editor } = useEditor((root) =>
   Editor.make()
     .config((ctx) => {
       ctx.set(rootCtx, root);
-      ctx.set(defaultValueCtx, "Milkdown + Vue3");
+      ctx.set(defaultValueCtx, props.modelValue);
+      ctx.get(listenerCtx).markdownUpdated((ctx, markdown) => {
+        emit("update:modelValue", markdown);
+      });
     })
     .use(nord)
     .use(emoji)
@@ -41,5 +55,6 @@ const { editor } = useEditor((root) =>
     .use(upload)
     .use(cursor)
     .use(clipboard)
+    .use(listener)
 );
 </script>
